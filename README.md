@@ -6,11 +6,10 @@ The canonical skill is [skills/portbook/SKILL.md](skills/portbook/SKILL.md).
 
 ## Availability and requirements
 
-The skill targets **Portbook 0.2.0 or newer**. Portbook v0.2.0 is being prepared
-but is not tagged or published yet; Homebrew and release downloads still provide
-v0.1.0, which is incompatible. The skill is already independently installable.
-Until the binary release is available, use only an authorized compatible source
-build from the Portbook repository.
+The skill targets **Portbook 0.2.0 or newer**. Install the
+[v0.2.0 binary release](https://github.com/sviatoslav/portbook/releases/tag/v0.2.0)
+or a compatible newer version separately. Version 0.1.0 is incompatible.
+The skill is independently installable and does not install the binary.
 
 Check `portbook --version` and scoped `--output table` help. Require read-only
 `get SERVICE`, create-only `reserve SERVICE`, explicit service names, record-only
@@ -19,7 +18,7 @@ label alone or fall back to old create-or-return behavior. An unavailable or
 unclear feature must be reported before allocation or teardown.
 
 Current Portbook source includes these features and `install-skills`; see the
-[release preparation guide](https://github.com/sviatoslav/portbook/blob/master/docs/RELEASING.md).
+[release and migration guide](https://github.com/sviatoslav/portbook/blob/master/docs/RELEASING.md).
 
 ## Install
 
@@ -40,7 +39,7 @@ skips its confirmations explicitly. Reinstallation can replace user-edited
 skill files; review or back up edits first. Upstream controls agent destinations
 and copy/symlink behavior. No maintenance guarantee is implied.
 
-The pending Portbook v0.2.0 source includes `portbook install-skills` (default
+Portbook v0.2.0 includes `portbook install-skills` (default
 Codex) and `portbook install-skills --agent claude-code`. It delegates to the same
 command with a five-minute timeout, process-group cancellation, and inherited
 confirmation/stdio. Published v0.1.0 has no installer command; use npx directly

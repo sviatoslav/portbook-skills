@@ -22,9 +22,9 @@ and scope conventions are instructions for agents, not CLI enforcement.
 
 ## Check compatibility
 
-Target **Portbook 0.2.0 or newer**. The 0.2.0 binary release is being prepared,
-not yet published; v0.1.0 is incompatible. Until delivery, use a compatible source
-build only when authorized. Inspect `portbook --version` and plain scoped help
+Target **Portbook 0.2.0 or newer**. Install the binary separately; v0.1.0 is
+incompatible. A compatible source build may also be used when authorized.
+Inspect `portbook --version` and plain scoped help
 (`--output table`) rather than trusting the version label alone. Require
 `get SERVICE`, create-only `reserve SERVICE` (duplicate fails), and explicit names
 for get/reserve and single-service release. If unavailable or unclear, stop and
