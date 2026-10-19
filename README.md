@@ -6,17 +6,20 @@ The canonical skill is [skills/portbook/SKILL.md](skills/portbook/SKILL.md).
 
 ## Availability and requirements
 
-The skill can be installed independently of the Portbook binary.
-Published Portbook v0.1.0 is incompatible: it has no `get`, permits implicit
-`default`, and uses create-or-return `reserve`. Require a newer build with
-`get SERVICE`, create-only `reserve SERVICE`, and explicit required names for
-get/reserve and single-service release. Inspect `portbook --version` and scoped
-`--output table` help; do not fall back to the old workflow. Future Portbook release/Homebrew
-integration is still required for the complete workflow. Booking-only release
-and owner-scoped `release --all` have been tested against a separate, unmerged
-Portbook core change. Published v0.1.0 lacks those features. Check `release --help`
-before teardown; do not assume a development build or Homebrew upgrade includes
-them. Use only a binary that supports the required commands and semantics.
+The skill targets **Portbook 0.2.0 or newer**. Portbook v0.2.0 is being prepared
+but is not tagged or published yet; Homebrew and release downloads still provide
+v0.1.0, which is incompatible. The skill is already independently installable.
+Until the binary release is available, use only an authorized compatible source
+build from the Portbook repository.
+
+Check `portbook --version` and scoped `--output table` help. Require read-only
+`get SERVICE`, create-only `reserve SERVICE`, explicit service names, record-only
+release without probes, and exact-owner `release --all`. Do not trust a version
+label alone or fall back to old create-or-return behavior. An unavailable or
+unclear feature must be reported before allocation or teardown.
+
+Current Portbook source includes these features and `install-skills`; see the
+[release preparation guide](https://github.com/sviatoslav/portbook/blob/master/docs/RELEASING.md).
 
 ## Install
 
@@ -37,10 +40,11 @@ skips its confirmations explicitly. Reinstallation can replace user-edited
 skill files; review or back up edits first. Upstream controls agent destinations
 and copy/symlink behavior. No maintenance guarantee is implied.
 
-A separate, unpublished Portbook change adds `portbook install-skills` (default
-Codex) and `portbook install-skills --agent claude-code`, delegating to the same
-command with a five-minute timeout. Published v0.1.0 has no installer command;
-use npx directly to install this skill.
+The pending Portbook v0.2.0 source includes `portbook install-skills` (default
+Codex) and `portbook install-skills --agent claude-code`. It delegates to the same
+command with a five-minute timeout, process-group cancellation, and inherited
+confirmation/stdio. Published v0.1.0 has no installer command; use npx directly
+to install the public skill. Installation is separate from binary compatibility.
 
 For local development, substitute an absolute checkout path for
 `sviatoslav/portbook-skills`. Development tests must isolate HOME/XDG and
