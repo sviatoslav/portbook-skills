@@ -22,18 +22,20 @@ and scope conventions are instructions for agents, not CLI enforcement.
 
 ## Check compatibility
 
-Inspect `portbook --version` and plain help (`--output table`) before using this
-workflow. Require `get SERVICE`, create-only `reserve SERVICE` (duplicate fails),
-and explicit required names for get/reserve and single-service release. Published
-v0.1.0 lacks these semantics. If unavailable or unclear, stop and request/build
-a compatible version as authorized; do not fall back to old create-or-return reserve behavior.
+Target **Portbook 0.2.0 or newer**. The 0.2.0 binary release is being prepared,
+not yet published; v0.1.0 is incompatible. Until delivery, use a compatible source
+build only when authorized. Inspect `portbook --version` and plain scoped help
+(`--output table`) rather than trusting the version label alone. Require
+`get SERVICE`, create-only `reserve SERVICE` (duplicate fails), and explicit names
+for get/reserve and single-service release. If unavailable or unclear, stop and
+request/build a compatible version as authorized; never fall back to old
+create-or-return reserve behavior.
 
-Before using release or worktree teardown, also inspect plain `release --help`.
+Before release or worktree teardown, also inspect plain `release --help`.
 Require booking-only release (no TCP probe or busy-port refusal); bulk teardown
-also requires owner-scoped `release --all`. Published v0.1.0 and older development
-builds lack these release features; check the actual binary rather than assuming
-a development version includes them. If support is absent or unclear, report the
-dependency and request/build a compatible version as authorized; do not pretend teardown ran.
+also requires exact-owner `release --all`. Older builds lack these features.
+Report absent or unclear support before teardown; do not infer it from a version
+label or pretend teardown ran.
 
 ## Read, then allocate only when permitted
 
