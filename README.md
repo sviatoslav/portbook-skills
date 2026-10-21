@@ -6,12 +6,14 @@ The canonical skill is [skills/portbook/SKILL.md](skills/portbook/SKILL.md).
 
 ## Availability and requirements
 
-The skill targets **Portbook 0.2.0 or newer**. Install the
-[v0.2.0 binary release](https://github.com/sviatoslav/portbook/releases/tag/v0.2.0)
-or a compatible newer version separately. Version 0.1.0 is incompatible.
+The skill targets **Portbook 0.3.0 or newer**. Install the
+[v0.3.0 binary release](https://github.com/sviatoslav/portbook/releases/tag/v0.3.0)
+or a compatible newer version separately. Earlier versions have different command/output contracts.
 The skill is independently installable and does not install the binary.
 
-Check `portbook --version` and scoped `--output table` help. Require read-only
+Check `portbook --version` and scoped `get --help`, `reserve --help`, and
+`release --help`; do not pass `--output` to those commands. Help is text in a
+terminal and JSON when piped. Require read-only
 `get SERVICE`, create-only `reserve SERVICE`, explicit service names, record-only
 release without probes, and exact-owner `release --all`. Do not trust a version
 label alone or fall back to old create-or-return behavior. An unavailable or
@@ -39,11 +41,17 @@ skips its confirmations explicitly. Reinstallation can replace user-edited
 skill files; review or back up edits first. Upstream controls agent destinations
 and copy/symlink behavior. No maintenance guarantee is implied.
 
-Portbook v0.2.0 includes `portbook install-skills` (default
+Portbook v0.3.0 includes `portbook install-skills` (default
 Codex) and `portbook install-skills --agent claude-code`. It delegates to the same
 command with a five-minute timeout, process-group cancellation, and inherited
 confirmation/stdio. Published v0.1.0 has no installer command; use npx directly
 to install the public skill. Installation is separate from binary compatibility.
+
+In v0.3.0, `--output` is supported only by `list`, `cleanup`, and the `config`
+subtree, after the command name. Release always prints a plain confirmation;
+check its exit status and stderr rather than parsing JSON. `config reset` restores
+the selected default pool atomically when explicitly requested; agents must not
+reset the pool just to start a service.
 
 For local development, substitute an absolute checkout path for
 `sviatoslav/portbook-skills`. Development tests must isolate HOME/XDG and
