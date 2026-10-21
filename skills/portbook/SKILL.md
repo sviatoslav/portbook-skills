@@ -22,20 +22,23 @@ and scope conventions are instructions for agents, not CLI enforcement.
 
 ## Check compatibility
 
-Target **Portbook 0.2.0 or newer**. Install the binary separately; v0.1.0 is
-incompatible. A compatible source build may also be used when authorized.
-Inspect `portbook --version` and plain scoped help
-(`--output table`) rather than trusting the version label alone. Require
+Target **Portbook 0.3.0 or newer**. Install the binary separately; earlier
+versions have different command/output contracts. A compatible source build may also be used when authorized.
+Inspect `portbook --version` and scoped `get --help`, `reserve --help`, and
+`release --help` rather than trusting the version label alone. Help is text in a
+terminal and JSON when piped. Do not append `--output` to these commands. Require
 `get SERVICE`, create-only `reserve SERVICE` (duplicate fails), and explicit names
 for get/reserve and single-service release. If unavailable or unclear, stop and
 request/build a compatible version as authorized; never fall back to old
 create-or-return reserve behavior.
 
-Before release or worktree teardown, also inspect plain `release --help`.
+Before release or worktree teardown, also inspect `release --help`.
 Require booking-only release (no TCP probe or busy-port refusal); bulk teardown
 also requires exact-owner `release --all`. Older builds lack these features.
 Report absent or unclear support before teardown; do not infer it from a version
-label or pretend teardown ran.
+label or pretend teardown ran. `--output table|json` is supported only on `list`,
+`cleanup`, and the `config` subtree, after the command name; root-prefix output
+flags are invalid.
 
 ## Read, then allocate only when permitted
 
@@ -49,7 +52,8 @@ portbook get --directory "$owner" -- "$service"
 Validate list JSON as an object with `command: "list"` and a `bookings` array
 (including `[]` when empty); check each row's directory, service, and port before
 relying on it. Validate successful get output as one decimal TCP port in 1–65535.
-Get success prints only the port and newline, including with JSON output; it reads a snapshot without allocation, locks, config reads, or probes.
+Get success prints only the port and newline on terminals and pipes; it reads a
+snapshot without allocation, locks, config reads, or probes.
 Reuse that port and supply it through the project's appropriate startup flag or
 environment variable. A listener on that port does not prove process ownership;
 do not kill it or allocate a replacement merely because it is occupied.
@@ -96,10 +100,20 @@ release removes only that exact owner's bookings under one lock and atomic save,
 preserving other owners. Single-service release still requires its explicit name.
 A missing single booking or empty bulk target reports an error; surface failures
 before directory removal rather than assuming teardown succeeded. In particular,
-corrupt/inaccessible state must not be repaired or bypassed.
+corrupt/inaccessible state must not be repaired or bypassed. Release success is
+always a plain confirmation; use exit status and stderr, not JSON parsing, to
+detect failure. Do not pass `--output` to single or bulk release.
 
 Chat archive alone does not authorize worktree deletion or reservation removal.
 Keep bookings stable for stopped servers and existing directories outside an
 intended removal task. If the directory is already gone, report that release
 requires an existing owner; do not invent flags or use global cleanup as a
 worktree-deletion fallback. No periodic cleanup, hook, or daemon is needed.
+
+## Restore defaults only when requested
+
+For an explicitly requested pool reset, use `portbook config reset` (optionally
+`--output json` after `config` or `reset`). It atomically persists 49152–65535
+in the selected config and preserves bookings and location selection. It does
+not repair corrupt evidence. `config path reset` changes location selection,
+not pool contents. Do not reset or expand the pool to bypass allocation failures.
