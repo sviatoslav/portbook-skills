@@ -15,7 +15,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-24.04, macos-15]
-        portbook-ref: [v0.3.0, master]
+        portbook-ref: [v0.3.0, main]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v7

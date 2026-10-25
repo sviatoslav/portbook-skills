@@ -5,7 +5,7 @@ Agent guidance for reusing stable local TCP ports with
 
 ## Install
 
-Install [Portbook](https://github.com/sviatoslav/portbook/blob/master/docs/INSTALLING.md)
+Install [Portbook](https://github.com/sviatoslav/portbook/blob/main/docs/INSTALLING.md)
 0.3.0 or newer and Node.js with npm/npx, then choose your agent:
 
 ```sh
@@ -42,6 +42,6 @@ release, and pool reset, and validates installer examples with `--help`.
 Keep executable Portbook examples in fenced `sh` blocks so the check includes them.
 
 CI runs this check against the minimum supported release, v0.3.0, and current
-Portbook `master` on macOS and Linux.
+Portbook `main` on macOS and Linux.
 
 [MIT License](LICENSE), copyright 2026 Sviatoslav Yakymiv.
