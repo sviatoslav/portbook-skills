@@ -1,6 +1,6 @@
 # Portbook skills
 
-Agent guidance for reusing stable local TCP ports with
+Agent best practices for worktree development with
 [Portbook](https://github.com/sviatoslav/portbook).
 
 ## Install
@@ -19,15 +19,11 @@ prompts and back up local skill edits before reinstalling.
 
 ## Project setup
 
-In your project's `AGENTS.md`, define:
-
-- Service names, such as `api` and `web`.
-- Each service's owner directory, relative to the checkout.
-- Permission to reserve a port when its booking is missing.
-- The startup flag or environment variable that supplies the port.
-
-The [skill](skills/portbook/SKILL.md) covers reading, allocation, and scoped
-teardown. Keep bookings between service restarts.
+The [Portbook skill](skills/portbook/SKILL.md) contains the recommended worktree
+workflow. Keep service names, default ports, and hook commands in each project's
+`AGENTS.md` or linked documentation. See the
+[integration examples](https://github.com/sviatoslav/portbook/blob/main/docs/AGENT-SETUP.md)
+for setup, startup, and removal scripts.
 
 ## Compatibility checks
 

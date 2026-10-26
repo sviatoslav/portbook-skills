@@ -1,76 +1,78 @@
 ---
 name: portbook
-description: Use Portbook to read and reuse stable local TCP ports for project services, reserve missing ports when authorized, and release bookings during scoped teardown.
+description: "Best practices for integrating Portbook with worktree-based development: reserve during setup, read during startup, and release during removal."
 ---
 
 # Portbook
 
-## Select the owner and service
+## Project integration
 
-Read the project's `AGENTS.md` for the service name, owner directory, allocation
-permission, and startup command. Resolve the owner to an existing absolute path
-from the checkout. Each directory has its own bookings; pass `--directory` when
-working from a subfolder. Ask for missing naming or ownership conventions.
+Read the project's `AGENTS.md` or linked workflow documentation for service names,
+default ports, creation and removal scripts, and startup flags or environment
+variables. Keep these project-specific settings and commands in that documentation.
 
-Use Portbook 0.3.0 or newer, or a compatible source build. Check `portbook --version`
-and scoped help when compatibility is unclear: get reads an existing booking,
-reserve creates one, and release removes only the exact owner's records.
-Report unsupported behavior before changing state.
+Run Portbook commands from the checkout root. Portbook uses the current directory
+for bookings; package subdirectories have separate bookings. Use
+`--directory /absolute/path/to/checkout` when a command runs elsewhere.
 
-## Read and reserve
+Prefer direct CLI calls in existing scripts and hooks. Adapt the following pattern
+to the project's workflow. The examples use Portbook 0.3.0 or newer; consult scoped
+help when compatibility is unclear.
 
-For the documented owner and service:
+## Recommended worktree workflow
 
-```sh
-portbook list --directory "$owner" --output json
-portbook get --directory "$owner" -- "$service"
-```
+### Creation script
 
-List returns an object with `command: "list"` and a `bookings` array. Check the
-owner, service, and port in its rows. Successful get and reserve print one decimal
-port in 1–65535. Supply that port through the project's startup interface.
-
-Allocate only after an explicit `reservation not found` runtime diagnostic for
-this owner and service, with repository or user authorization:
+Reserve all required service ports in the setup script or hook that runs
+automatically during worktree creation, after the new directory exists. Reuse
+existing bookings when setup is repeated. Inspect them with:
 
 ```sh
-portbook reserve --directory "$owner" -- "$service"
+portbook list --output json
 ```
 
-Honor authorization already given. On `reservation already exists`, read the
-same booking again; stop if that retry fails. Surface usage, storage, permission,
-or malformed-output errors before further mutations. Keep an existing booking
-when its port is busy, and verify process ownership before stopping a listener.
-Start a newly reserved service promptly because other programs can bind its port.
-
-## Release during teardown
-
-Keep bookings between restarts. For authorized worktree deletion, release the
-exact owner's bookings while its directory still exists:
+For each missing service:
 
 ```sh
-portbook release --all --directory "$owner"
+portbook reserve -- "$service"
 ```
 
-The deletion request authorizes this scoped release. Release removes booking
-records even for busy ports; manage running services through the project's
-shutdown procedure. Success is a plain confirmation; use exit status and stderr
-to detect failure. Surface missing-booking or storage errors before removing the
-directory. Keep chat archival separate from service or worktree teardown.
+Keep setup errors visible. If setup fails partway through, keep successful
+bookings so the next attempt can reuse them.
 
-## Pool maintenance
+### During use
 
-Pool changes and global cleanup require their own task authorization. Missing
-configuration already supplies ports 49152–65535. For a requested pool reset:
+Read the booked port and pass it through the service's startup flag or environment
+variable. Successful `get` and `reserve` print a decimal port:
 
 ```sh
-portbook config reset
+portbook get -- "$service"
 ```
 
-This restores the default pool while preserving bookings and location selection;
-`config path reset` clears the saved location choice instead. Resolve invalid
-configuration before retrying.
+For projects with default ports:
 
-For compatibility, use `--output table|json` only after `list`, `cleanup`,
-`config show`, or `config path get`. Help and errors default to text in a terminal
-and JSON when piped. Check scoped help for additional options.
+```sh
+api_port="$(portbook get api 2>/dev/null || printf '8080\n')"
+```
+
+This falls back whenever lookup fails. A main checkout without bookings can use
+its defaults. After setup, startup commands only read bookings. Keep bookings
+through service restarts and closed terminals. A reservation does not hold a
+listening socket; keep the booking stable while resolving a port conflict.
+
+### Removal script
+
+Stop remaining worktree services through their usual shutdown commands. Detached
+services can outlive their terminals; target them through the service's own stop
+command or a tracked process identity.
+
+In the worktree removal script or hook, release its bookings before deleting the
+directory:
+
+```sh
+portbook release --all
+```
+
+Release removes only this directory's records, even for busy ports, and does not
+stop processes. A checkout with no bookings needs no release. Keep cleanup errors
+visible and resolve them before removing the directory.

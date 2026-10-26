@@ -31,7 +31,7 @@ def read_examples(root):
                 require(args, f"{location}: expected a Portbook command")
                 name = " ".join(args[:2]) if args[0] == "config" else args[0]
                 examples.setdefault(name, []).append((location, args))
-    required = {"list", "get", "reserve", "release", "config reset", "install-skills"}
+    required = {"list", "get", "reserve", "release", "install-skills"}
     require(set(examples) == required, "Add coverage for missing or new command examples: "
             + repr(set(examples) ^ required))
     for name, commands in examples.items():
@@ -54,8 +54,8 @@ def check(binary, root):
                    XDG_CONFIG_HOME=str(temporary / "xdg"),
                    PORTBOOK_CONFIG_DIR=str(temporary / "pool"))
 
-        def run(args, code=0, location="check setup"):
-            result = subprocess.run([str(binary), *args], cwd=temporary, env=env,
+        def run(args, code=0, location="check setup", cwd=temporary):
+            result = subprocess.run([str(binary), *args], cwd=cwd, env=env,
                                     capture_output=True, text=True, timeout=15)
             require(result.returncode == code,
                     f"{location}: {shlex.join(args)}: expected exit {code}, "
@@ -66,8 +66,9 @@ def check(binary, root):
 
         def example(name, selected_owner=owner, code=0):
             location, args = examples[name][0]
-            variables = {"$owner": str(selected_owner), "$service": service}
-            return run([variables.get(arg, arg) for arg in args], code, location)
+            variables = {"$service": service}
+            return run([variables.get(arg, arg) for arg in args], code, location,
+                       cwd=selected_owner)
 
         def failure(name, diagnostic):
             error = json.loads(example(name, code=1))["error"]
@@ -102,7 +103,7 @@ def check(binary, root):
 
         run(["config", "remove", "--all"])
         require(port(example("get")) == reserved, "Get lost a booking outside the pool")
-        example("config reset")
+        run(["config", "reset"])
         pool = json.loads(run(["config", "show", "--output", "json"]))
         require(pool["ranges"] == [{"start": 49152, "end": 65535}]
                 and pool["total"] == 16384, "Reset did not restore the default pool")
